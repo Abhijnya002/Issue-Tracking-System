@@ -1,0 +1,130 @@
+<% content_for :title, "#{@project.key} · #{@project.name}" %>
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600"><%= @project.key %></p>
+    <h1 class="mt-1 text-3xl font-semibold tracking-tight"><%= @project.name %></h1>
+    <% if @project.description.present? %>
+      <p class="mt-2 max-w-2xl text-slate-600"><%= @project.description %></p>
+    <% end %>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Report", project_report_path(@project), class: "rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <% if @board_role.in?(%w[admin member]) %>
+      <%= link_to "Labels", project_labels_path(@project), class: "rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <% end %>
+    <% if current_user.admin_on?(@project) %>
+      <%= link_to "Team", project_memberships_path(@project), class: "rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50" %>
+      <%= link_to "Settings", edit_project_path(@project), class: "rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <% end %>
+    <% if @board_role.in?(%w[admin member]) %>
+      <%= link_to "New issue", new_project_issue_path(@project), class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-8 space-y-4" data-controller="board-filter">
+  <% if @board_filter_labels.any? %>
+    <div class="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <details class="group relative z-30">
+        <summary
+          class="flex cursor-pointer list-none items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100 [&::-webkit-details-marker]:hidden"
+        >
+          <span data-board-filter-target="summary">Filter by tag</span>
+          <svg class="h-4 w-4 text-slate-500 transition group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <div class="absolute left-0 top-full z-40 mt-1 min-w-[220px] rounded-md border border-slate-200 bg-white py-2 shadow-lg">
+          <% @board_filter_labels.each do |label| %>
+            <label class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                data-board-filter-target="checkbox"
+                data-label-id="<%= label.id %>"
+                data-action="board-filter#checkboxChange"
+              />
+              <%= render "shared/label_badge", label: label %>
+            </label>
+          <% end %>
+        </div>
+      </details>
+      <button
+        type="button"
+        class="hidden text-xs font-medium text-slate-600 underline decoration-slate-300 hover:text-slate-900"
+        data-board-filter-target="clearBtn"
+        data-action="board-filter#clear"
+      >
+        Clear filters
+      </button>
+      <span class="hidden text-xs text-slate-500" data-board-filter-target="hint">Showing issues that match any selected tag.</span>
+    </div>
+  <% end %>
+
+  <div
+    data-controller="kanban"
+    data-kanban-url-value="<%= reorder_project_issues_path(@project) %>"
+    data-kanban-readonly-value="<%= !@can_edit_board %>"
+    data-kanban-fragment-template-value="<%= fragment_project_issue_path(@project, "__ISSUE_ID__") %>"
+  >
+    <%# Active board (above backlog) %>
+    <div>
+      <div class="mb-3">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Board</h2>
+        <p class="mt-0.5 text-xs text-slate-500">To do, in progress, and done. Drag cards between columns to update status.</p>
+      </div>
+
+      <div class="overflow-x-auto pb-2">
+        <div class="flex min-w-[960px] gap-4">
+          <% @board_by_status.each do |status, issues| %>
+            <section class="flex w-72 shrink-0 flex-col rounded-lg border border-slate-200 bg-slate-100/80">
+              <header class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-600"><%= status.tr("_", " ") %></h3>
+                <span class="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600" data-kanban-count><%= issues.size %></span>
+              </header>
+              <div
+                class="flex min-h-[120px] flex-1 flex-col gap-2 p-2"
+                data-kanban-target="list"
+                data-status="<%= status %>"
+              >
+                <% issues.each do |issue| %>
+                  <%= render "issue_card", project: @project, issue: issue, role: @board_role, can_edit_board: @can_edit_board %>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Backlog — below the board %>
+    <section class="mt-10 rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+        <div>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Backlog</h2>
+          <p class="mt-0.5 text-xs text-slate-500">Unscheduled work. Drag items here from the board above, or pull cards up when you are ready to work on them.</p>
+        </div>
+        <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700" data-kanban-count><%= @backlog_issues.size %></span>
+      </div>
+      <% if @backlog_issues.empty? %>
+        <p class="border-b border-slate-100 px-4 py-3 text-center text-sm text-slate-500">
+          No items in backlog.
+          <% if @board_role.in?(%w[admin member]) %>
+            <%= link_to "Create an issue", new_project_issue_path(@project, status: "backlog"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+            or drag cards here from the board above.
+          <% end %>
+        </p>
+      <% end %>
+      <div
+        class="flex min-h-[5rem] flex-col gap-2 p-3 sm:p-4"
+        data-kanban-target="list"
+        data-status="backlog"
+      >
+        <% @backlog_issues.each do |issue| %>
+          <%= render "issue_row", project: @project, issue: issue, role: @board_role, can_edit_board: @can_edit_board %>
+        <% end %>
+      </div>
+    </section>
+  </div>
+</div>

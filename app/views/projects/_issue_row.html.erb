@@ -1,0 +1,82 @@
+<%# locals: (project:, issue:, role:, can_edit_board:) %>
+<article
+  class="flex w-full max-w-none flex-col gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:gap-4 sm:py-2.5"
+  data-issue-id="<%= issue.id %>"
+  data-board-filter-target="card"
+  data-label-ids="<%= issue.labels.map(&:id).join(',') %>"
+  x-data="{ open: false }"
+  @click.outside="open = false"
+>
+  <div class="flex min-w-0 flex-1 items-start gap-2 sm:items-center">
+    <% if can_edit_board %>
+      <button
+        type="button"
+        class="mt-0.5 shrink-0 cursor-grab rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing sm:mt-0"
+        data-drag-handle
+        title="Drag to move"
+        aria-label="Drag issue"
+        @click.stop
+      >
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="9" cy="6" r="1.6" />
+          <circle cx="15" cy="6" r="1.6" />
+          <circle cx="9" cy="12" r="1.6" />
+          <circle cx="15" cy="12" r="1.6" />
+          <circle cx="9" cy="18" r="1.6" />
+          <circle cx="15" cy="18" r="1.6" />
+        </svg>
+      </button>
+    <% end %>
+
+    <div class="min-w-0 flex-1">
+      <%= link_to project_issue_path(project, issue), class: "block font-medium text-slate-900 hover:text-indigo-700 sm:line-clamp-1", data: { turbo: false } do %>
+        <%= issue.title %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if issue.labels.any? %>
+    <div class="flex min-w-0 shrink flex-wrap items-center gap-1 sm:max-w-[40%] sm:justify-end">
+      <% issue.labels.sort_by(&:name).each do |label| %>
+        <%= render "shared/label_badge", label: label %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="flex flex-wrap items-center gap-2 sm:shrink-0">
+    <%= link_to project_issue_path(project, issue), class: "inline-flex items-center gap-1.5 font-mono text-xs text-emerald-700 hover:text-emerald-800", data: { turbo: false } do %>
+      <svg class="h-3.5 w-3.5 shrink-0 text-emerald-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l7-4 7 4V4a2 2 0 00-2-2H5z" clip-rule="evenodd" />
+      </svg>
+      <%= issue.key %>
+    <% end %>
+    <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-slate-600"><%= issue.issue_type %></span>
+    <span class="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium uppercase text-amber-800"><%= issue.priority %></span>
+    <% if issue.assignee %>
+      <span class="hidden max-w-[10rem] truncate text-xs text-slate-500 lg:inline"><%= issue.assignee.email_address %></span>
+    <% end %>
+  </div>
+
+  <div class="relative ml-auto shrink-0 sm:ml-0">
+    <button
+      type="button"
+      class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+      @click.stop="open = !open"
+      aria-label="Issue actions"
+    >
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+    </button>
+    <div
+      x-show="open"
+      x-transition
+      x-cloak
+      class="absolute right-0 z-10 mt-1 w-40 rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+      style="display: none;"
+    >
+      <%= link_to "View", project_issue_path(project, issue), class: "block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50", data: { turbo: false } %>
+      <% if role.in?(%w[admin member]) %>
+        <%= link_to "Edit", edit_project_issue_path(project, issue), class: "block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50", data: { turbo: false }, "@click": "open = false" %>
+      <% end %>
+    </div>
+  </div>
+</article>

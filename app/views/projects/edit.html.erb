@@ -1,0 +1,9 @@
+<% content_for :title, "Edit #{@project.name}" %>
+
+<div class="mx-auto max-w-xl">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-semibold">Edit project</h1>
+    <%= link_to "Manage team", project_memberships_path(@project), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" %>
+  </div>
+  <%= render "form", project: @project %>
+</div>

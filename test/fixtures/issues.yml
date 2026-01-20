@@ -1,0 +1,22 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  project: one
+  identifier: 1
+  title: Sample task
+  description: Fixture body
+  issue_type: task
+  status: todo
+  priority: medium
+  reporter: one
+  position: 1
+
+two:
+  project: two
+  identifier: 1
+  title: Another task
+  issue_type: bug
+  status: backlog
+  priority: low
+  reporter: two
+  position: 1

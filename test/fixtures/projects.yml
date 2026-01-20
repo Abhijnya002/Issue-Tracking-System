@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  owner: one
+  name: Alpha project
+  key: ALPHA
+  description: First test project
+  issue_sequence: 1
+
+two:
+  owner: two
+  name: Beta project
+  key: BETA
+  description: Second test project
+  issue_sequence: 1
