@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+billing:
+  project: one
+  name: Billing
+  color: blue
+
+accounts:
+  project: two
+  name: Accounts
+  color: green

@@ -1,0 +1,16 @@
+<% content_for :title, "New issue · #{@project.key}" %>
+
+<div class="mx-auto max-w-3xl">
+  <p class="text-sm font-medium text-indigo-600"><%= @project.key %> · <%= @project.name %></p>
+  <h1 class="mt-2 text-2xl font-semibold">New issue</h1>
+
+  <% if @return_to_path.present? %>
+    <div class="mt-4">
+      <%= render "quick_label_form", project: @project, return_to_path: @return_to_path %>
+    </div>
+  <% end %>
+
+  <div class="mt-6">
+    <%= render "form", project: @project, issue: @issue, assignees: @assignees, project_labels: @project_labels %>
+  </div>
+</div>

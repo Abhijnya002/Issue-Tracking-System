@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@layer utilities {
+  [x-cloak] {
+    display: none !important;
+  }
+
+  .sortable-ghost {
+    opacity: 0.45;
+  }
+
+  .sortable-chosen {
+    cursor: grabbing;
+  }
+}

@@ -1,0 +1,6 @@
+<% content_for :title, "Edit label · #{@project.key}" %>
+
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-2xl font-semibold">Edit label</h1>
+  <%= render "form", project: @project, label: @label %>
+</div>
