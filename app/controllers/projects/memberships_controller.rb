@@ -57,5 +57,4 @@ class Projects::MembershipsController < ApplicationController
 
     redirect_to @project, alert: "You need admin access to manage the team."
   end
-
 end
