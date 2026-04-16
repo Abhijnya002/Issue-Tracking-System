@@ -6,6 +6,6 @@ class CreateIssueLabels < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    add_index :issue_labels, [:issue_id, :label_id], unique: true
+    add_index :issue_labels, [ :issue_id, :label_id ], unique: true
   end
 end

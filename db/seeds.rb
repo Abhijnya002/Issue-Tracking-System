@@ -27,10 +27,10 @@ ProjectMembership.find_or_create_by!(user: alice, project: project) do |m|
 end
 
 [
-  ["Billing", "blue"],
-  ["Accounts", "green"],
-  ["Forms", "purple"],
-  ["Feedback", "yellow"]
+  [ "Billing", "blue" ],
+  [ "Accounts", "green" ],
+  [ "Forms", "purple" ],
+  [ "Feedback", "yellow" ]
 ].each do |name, color|
   Label.find_or_create_by!(project: project, name: name) do |l|
     l.color = color

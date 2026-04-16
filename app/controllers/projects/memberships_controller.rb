@@ -9,8 +9,9 @@ class Projects::MembershipsController < ApplicationController
   end
 
   def create
-    email = membership_params[:email_address].to_s.strip.downcase
-    role = membership_params[:role].presence_in(ProjectMembership::ROLES) || "member"
+    raw = params.require(:membership)
+    email = raw[:email_address].to_s.strip.downcase
+    role = raw[:role].to_s.presence_in(ProjectMembership::ROLES) || "member"
 
     if email.blank?
       redirect_to project_memberships_path(@project), alert: "Enter an email address."
@@ -57,7 +58,4 @@ class Projects::MembershipsController < ApplicationController
     redirect_to @project, alert: "You need admin access to manage the team."
   end
 
-  def membership_params
-    params.require(:membership).permit(:email_address, :role)
-  end
 end

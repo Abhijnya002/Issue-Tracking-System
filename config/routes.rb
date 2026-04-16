@@ -6,9 +6,9 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
 
   resources :projects do
-    resource :report, only: [:show], module: :projects
+    resource :report, only: [ :show ], module: :projects
     resources :memberships, only: %i[index create destroy], module: :projects
-    resources :labels, except: [:show], module: :projects
+    resources :labels, except: [ :show ], module: :projects
     resources :issues do
       collection do
         patch :reorder
